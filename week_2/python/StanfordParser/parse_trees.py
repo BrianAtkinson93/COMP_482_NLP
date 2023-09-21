@@ -19,7 +19,8 @@ import json
 
 parser = nlp('http://localhost', port=9000)
 
-text = 'Victoria is the capital of British Colubmia; the Empress Hotel is in its downtown waterfront area.'
+# text = 'Victoria is the capital of British Colubmia; the Empress Hotel is in its downtown waterfront area.'
+text = 'Brian travelled to Seattle, which is in Washington State, to visit Ania'
 ann = parser.annotate(
 	text,
 	properties={
