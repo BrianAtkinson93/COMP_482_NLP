@@ -126,6 +126,7 @@ def min_edit_distance(in_a: str, in_b: str) -> int:
         formatted_row = format_string.format(*row)
         print(formatted_row)
 
+    # Keeping in mind that the last index of any array is -1, you can use this for any value
     print(f'\nThe value at the bottom-right corner (dp[{len(dp) - 1}][{len(dp[0]) - 1}] = {dp[-1][-1]}) is the minimum '
           f'edit distance between the two full strings')
 
