@@ -21,19 +21,19 @@ The space complexity is also O(m×n).
 import sys
 
 
-def min_edit_distance(input_a: str, input_b: str) -> int:
+def min_edit_distance(in_a: str, in_b: str) -> int:
     """
     Calculate the minimum edit distance between two strings using dynamic programming.
 
     Parameters:
-    - input_a: The first string to compare.
-    - input_b: The second string to compare.
+    - in_a: The first string to compare.
+    - in_b: The second string to compare.
 
     Returns:
-    - The minimum edit distance between input_a and input_b.
+    - The minimum edit distance between in_a and in_b.
     """
     # Get the lengths of the input strings.
-    m, n = len(input_a), len(input_b)
+    m, n = len(in_a), len(in_b)
 
     # Initialize a 2D list (m+1 x n+1) with zeros.
     # This will serve as our dynamic programming table.
@@ -69,7 +69,7 @@ def min_edit_distance(input_a: str, input_b: str) -> int:
 
             # Calculate the cost of substitution.
             # If the characters are the same, the cost is 0. Otherwise, it's 1.
-            substitution = dp[i - 1][j - 1] + (0 if input_a[i - 1] == input_b[j - 1] else 1)
+            substitution = dp[i - 1][j - 1] + (0 if in_a[i - 1] == in_b[j - 1] else 1)
 
             # Store the minimum cost among insertion, deletion, and substitution.
             dp[i][j] = min(insertion, deletion, substitution)
