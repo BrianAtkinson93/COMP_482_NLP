@@ -38,7 +38,10 @@ def min_edit_distance(input_a: str, input_b: str) -> int:
     # Initialize a 2D list (m+1 x n+1) with zeros.
     # This will serve as our dynamic programming table.
     dp = [[0] * (n + 1) for _ in range(m + 1)]
-    print(f'dp: {dp}')
+
+    print(f'Instantiated')
+    for row in dp:
+        print(row)
 
     # Initialization: Filling in the first row and first column.
     # The first row represents the cost of converting a substring of input_a to an empty string.
@@ -48,11 +51,16 @@ def min_edit_distance(input_a: str, input_b: str) -> int:
     for j in range(n + 1):
         dp[0][j] = j
 
+    print(f'\nPopulated')
+    print(f'The first row represents the cost of converting a substring of the first string to an empty string')
+    print(f'The first column represents the cost of converting an empty string to a substring of the second string')
+    for row in dp:
+        print(row)
+
     # Main Loop: Filling in the rest of the dp table.
     # We start from index 1 because index 0 is already initialized.
     for i in range(1, m + 1):
         for j in range(1, n + 1):
-
             # Calculate the cost of insertion.
             insertion = dp[i][j - 1] + 1
 
@@ -66,6 +74,14 @@ def min_edit_distance(input_a: str, input_b: str) -> int:
             # Store the minimum cost among insertion, deletion, and substitution.
             dp[i][j] = min(insertion, deletion, substitution)
 
+    print(f'\nFilled')
+    print(f'The value at dp[i][j] represents the minimum edit distance between the first i characters of the '
+          f'first string and the first j characters of the second string.\n'
+          f'The value is calculated as the minimum cost among insertion, deletion, and substitution.')
+    for row in dp:
+        print(row)
+    print(f'\nThe value at the bottom-right corner (dp[6][7] = 3 in this case) is the minimum '
+          f'edit distance between the two full strings')
     # The value at dp[m][n] contains the minimum edit distance between input_a and input_b.
     return dp[m][n]
 
@@ -74,4 +90,5 @@ if __name__ == "__main__":
     # Test the function
     A = "kitten"
     B = "sitting"
-    print("Minimum Edit Distance:", min_edit_distance(A, B))
+
+    print("\nMinimum Edit Distance:", min_edit_distance(A, B))
