@@ -112,18 +112,31 @@ def min_edit_distance(in_a: str, in_b: str) -> int:
     print(f'The value at dp[i][j] represents the minimum edit distance between the first i characters of the '
           f'first string and the first j characters of the second string.\n'
           f'The value is calculated as the minimum cost among insertion, deletion, and substitution.')
+
+    " This is an example of how to do formatted the pythonic way "
+    " You can use < for left, ^ for middle, > for right"
+    # Define the format string
+    format_string = "{:<3} " * len(dp[0])  # Assuming all rows have the same length
+    # format_string = "{:^3} " * len(dp[0])  # Assuming all rows have the same length
+    # format_string = "{:>3} " * len(dp[0])  # Assuming all rows have the same length
+
+    # Loop through each row in dp
     for row in dp:
-        print(row)
-    print(f'\nThe value at the bottom-right corner (dp[6][7] = 3 in this case) is the minimum '
+        # Format the row and print it
+        formatted_row = format_string.format(*row)
+        print(formatted_row)
+
+    print(f'\nThe value at the bottom-right corner (dp[{len(dp) - 1}][{len(dp[0]) - 1}] = {dp[-1][-1]}) is the minimum '
           f'edit distance between the two full strings')
+
     # The value at dp[m][n] contains the minimum edit distance between input_a and input_b.
     return dp[m][n]
 
 
 if __name__ == "__main__":
     # Test the function
-    A = "kitten"
-    B = "sitting"
+    A = "#inention"
+    B = "#extention"
 
     print("\nMinimum Edit Distance:", min_edit_distance(A, B))
 
