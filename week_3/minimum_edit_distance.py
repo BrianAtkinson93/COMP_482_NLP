@@ -21,6 +21,40 @@ The space complexity is also O(m×n).
 import sys
 
 
+def min_edit_distance_recursive(input_a: str, input_b: str, m: int, n: int) -> int:
+    """
+    Calculate the minimum edit distance between two strings recursively.
+
+    Parameters:
+    - input_a: The first string to compare.
+    - input_b: The second string to compare.
+    - m: The length of input_a.
+    - n: The length of input_b.
+
+    Returns:
+    - The minimum edit distance between input_a and input_b.
+    """
+
+    # Base Cases: If one string is empty, the minimum edit distance is the length of the other string.
+    if m == 0:
+        return n
+    if n == 0:
+        return m
+
+    # Recursive Cases: Calculate the minimum edit distance based on the last characters of the strings.
+    # If the last characters are the same, no operation is needed.
+    if input_a[m - 1] == input_b[n - 1]:
+        return min_edit_distance_recursive(input_a, input_b, m - 1, n - 1)
+
+    # Otherwise, consider all three operations: insertion, deletion, and substitution.
+    insertion = min_edit_distance_recursive(input_a, input_b, m, n - 1) + 1
+    deletion = min_edit_distance_recursive(input_a, input_b, m - 1, n) + 1
+    substitution = min_edit_distance_recursive(input_a, input_b, m - 1, n - 1) + 1
+
+    # Return the minimum cost among the three operations.
+    return min(insertion, deletion, substitution)
+
+
 def min_edit_distance(in_a: str, in_b: str) -> int:
     """
     Calculate the minimum edit distance between two strings using dynamic programming.
@@ -92,3 +126,7 @@ if __name__ == "__main__":
     B = "sitting"
 
     print("\nMinimum Edit Distance:", min_edit_distance(A, B))
+
+    print("\nRecursive example:")
+    m, n = len(A), len(B)
+    print("Minimum Edit Distance:", min_edit_distance_recursive(A, B, m, n))
