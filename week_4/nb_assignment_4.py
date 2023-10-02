@@ -71,7 +71,9 @@ def naive_bayes(test_doc: Dict[str, int], train_doc: Dict[str, int], total_train
     :param total_train: The total number of words in the training document.
     :param unique_words: The number of unique words across both the training and test documents.
     :param type_: The type of PDF being analyzed (e.g., 'Good', 'Bad', etc.).
-    :param log_prior:
+    :param log_prior: The log-transformed prior probability of the class (e.g., 'Good', 'Bad') being considered.
+                      This is used to incorporate the initial "bias" based on the prevalence of each class in the
+                      training data.
     :return float: The calculated Naive Bayes log probability for the test document based on the training document.
 
     Example:
@@ -189,7 +191,6 @@ def main(args):
                                            log_prior_good)
     prob_negative_given_test = naive_bayes(test_doc, negative_doc, total_negative, unique_words, 'Negative',
                                            log_prior_bad)
-
 
     """
     Top 10 most frequent words in the test document and their calculations.
