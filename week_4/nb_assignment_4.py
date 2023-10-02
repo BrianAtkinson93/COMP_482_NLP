@@ -173,7 +173,7 @@ def main(args):
     unique_words = len(set(list(positive_doc.keys()) + list(negative_doc.keys()) + list(test_doc.keys())))
 
     # Calculate the prior probabilities based on your training data
-    total_pdfs = 2  # Assuming you have one "good" and one "bad" PDF for simplicity
+    total_pdfs = 2
     num_good_pdfs = 1
     num_bad_pdfs = 1
 
@@ -190,9 +190,6 @@ def main(args):
     prob_negative_given_test = naive_bayes(test_doc, negative_doc, total_negative, unique_words, 'Negative',
                                            log_prior_bad)
 
-    # # Calculate Naive Bayes probabilities for the test document.
-    # prob_positive_given_test = naive_bayes(test_doc, positive_doc, total_positive, unique_words, 'Positive')
-    # prob_negative_given_test = naive_bayes(test_doc, negative_doc, total_negative, unique_words, 'Negative')
 
     """
     Top 10 most frequent words in the test document and their calculations.
