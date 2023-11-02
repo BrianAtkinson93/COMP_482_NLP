@@ -1,6 +1,9 @@
+# import math
+# import random
+import sys
 import os
-import math
-import random
+import logging
+
 import torch as t
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -8,24 +11,71 @@ import matplotlib.pyplot as plt
 from torch.autograd import Variable
 
 
-class linear_regression(t.nn.Module):
-    def __init__(self, inputSize, outputSize):
-        super(linear_regression, self).__init__()
-        self.linear = t.nn.Linear(inputSize, outputSize)
+class LinearRegression(t.nn.Module):
+    """
+    Custom Linear Regression model using PyTorch.
+    """
+
+    def __init__(self, input_size: int, output_size: int) -> None:
+        """
+        Initialize the linear regression model.
+
+        Args:
+            input_size (int): Number of input features.
+            output_size (int): Number of output features.
+
+        Returns:
+            None
+        """
+        super(LinearRegression, self).__init__()
+        self.linear = t.nn.Linear(input_size, output_size)
         with t.no_grad():
             self.linear.bias.uniform_(-20, 20)
 
-    def get_bias(self):
+    def get_bias(self) -> t.Tensor:
+        """
+        Retrieve the bias of the model.
+
+        Returns:
+            Tensor: The bias tensor.
+        """
         return self.linear.bias.to(device='cpu')
 
-    def get_weights(self):
+    def get_weights(self) -> t.Tensor:
+        """
+        Retrieve the weights of the model.
+
+        Returns:
+            Tensor: The weights' tensor.
+        """
         return self.linear.weight.to(device='cpu')
 
-    def forward(self, x):
+    def forward(self, x: t.Tensor) -> t.Tensor:
+        """
+        Forward pass of the model.
+
+        Args:
+            x (Tensor): Input tensor.
+
+        Returns:
+            Tensor: Output tensor.
+        """
         out = self.linear(x)
         return out
 
-    def train(self, X, Y, steps=10000):
+    def train(self, x: t.Tensor, y: t.Tensor, steps: int = 10000) -> None:
+        """
+        Train the model using the provided data.
+
+        Args:
+            x (Tensor): Input tensor.
+            y (Tensor): Target tensor.
+            steps (int): Number of training steps.
+
+        Returns:
+            None
+        """
+        log.info('Starting training...')
         # start training
         learning_rate = 30.0 / steps
         t.set_grad_enabled(True)
@@ -36,25 +86,25 @@ class linear_regression(t.nn.Module):
         # stochastic gradient descent
         optimizer = t.optim.SGD(self.parameters(), lr=learning_rate)
         if t.cuda.is_available():
-            inputs = Variable(X.reshape(-1, 1).cuda())  # use GPU, if possible
-            labels = Variable(Y.reshape(-1, 1).cuda())
+            inputs = Variable(x.reshape(-1, 1).cuda())  # use GPU, if possible
+            labels = Variable(y.reshape(-1, 1).cuda())
         else:
-            inputs = Variable(X.reshape(-1, 1))  # otherwise, use CPU
-            labels = Variable(Y.reshape(-1, 1))
+            inputs = Variable(x.reshape(-1, 1))  # otherwise, use CPU
+            labels = Variable(y.reshape(-1, 1))
         for step in range(steps):
             learning_rate = 30.0 / steps
             optimizer.zero_grad()  # do not accumulate gradients across steps
             outputs = self(inputs.float())  # approximated values
             w = self.get_weights().squeeze()
             b = self.get_bias()
-            L = w * X + b
+            leg = w * x + b
             loss = criterion(outputs, labels)
-            # print(t.sum(t.square(L - Y))) # see the MSE if you need, which should be same as loss
+            # print(t.sum(t.square(leg - Y))) # see the MSE if you need, which should be same as loss
             loss.backward()  # calculate gradient
             optimizer.step()  # move weights and bias opposite direction from gradient
-            print(
+            log.debug(
                 'step {j:5d}: loss {v:.10f} --- mse {mse:.10f} --- w {wght:.10f} --- b {bias:.10f}'
-                .format(j=step, v=loss.item(), mse=t.sum(t.square(L - Y)), wght=w, bias=b.item())
+                .format(j=step, v=loss.item(), mse=t.sum(t.square(leg - y)), wght=w, bias=b.item())
             )
         # done with training
         t.set_grad_enabled(False)
@@ -77,10 +127,19 @@ def plot_vertical(x, y, line, scatterplot) -> None:
     line[-1].plot(x='X', y='dY', color='yellow', ax=scatterplot, legend=False)
 
 
-def main():
-    print('--- MAIN PROGRAM ---')
+def main(logger) -> int:
+    """
+    Main function to execute the program.
+    Loads data, trains models, and plots the results.
 
-    data_path = os.path.abspath('data/points.csv')
+    Returns:
+        None
+    """
+    log.info("Main Func...")
+
+    fp = 'data/points.csv'
+    logger.info(f"Loading {fp}...")
+    data_path = os.path.abspath(fp)
     df = pd.read_csv(data_path)
 
     x1 = t.tensor(df.iloc[0:10, 1].values).float()
@@ -91,10 +150,10 @@ def main():
     input_dim = 1
     output_dim = 1
 
-    model1 = linear_regression(input_dim, output_dim)
+    model1 = LinearRegression(input_dim, output_dim)
     model1.train(x1, y1)
 
-    model2 = linear_regression(input_dim, output_dim)
+    model2 = LinearRegression(input_dim, output_dim)
     model2.train(x2, y2)
 
     w1 = model1.get_weights().squeeze()
@@ -125,10 +184,39 @@ def main():
     df_line2.plot(x='Lx2', y='Ly2', kind='line', color='green', ax=scatterplot)
     df_line2.plot.scatter(x='Lx2', y='Ly2', color='green', ax=scatterplot)
 
+    logger.info('Showing Plot...')
     plt.show()
 
     plt.close("all")
 
+    return 0
+
+
+def setup_logger(log_level):
+    # Create a custom logger
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(level=logging.NOTSET, handlers=[])
+
+    # Create handlers
+    c_handler = logging.StreamHandler()
+    f_handler = logging.FileHandler(f'{__name__}.log')
+    c_handler.setLevel(log_level)
+    f_handler.setLevel(log_level)
+
+    # Create formatters and add it to handlers
+    c_format = logging.Formatter('%(levelname)s - %(message)s')
+    f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    c_handler.setFormatter(c_format)
+    f_handler.setFormatter(f_format)
+
+    # Add handlers to the logger
+    logger.addHandler(c_handler)
+    logger.addHandler(f_handler)
+
+    return logger
+
 
 if __name__ == "__main__":
-    main()
+    log = setup_logger(log_level=logging.INFO)
+    log.info("Starting run...")
+    sys.exit(main(log))
