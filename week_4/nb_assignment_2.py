@@ -232,7 +232,7 @@ if __name__ == "__main__":
     parser.add_argument('--good_pdf', type=int, help="Please specify the row that you want to define as good.")
     parser.add_argument('--bad_pdf', type=int, help="Please specify the row that you want to define as bad.")
     parser.add_argument('--test_pdf', type=int, help="Please define the row that you want to classify")
-    parser.add_argument('--output_name', type=str, default="classification.pdf",
+    parser.add_argument('--output_name', type=str, default="classification_report.pdf",
                         help="Please specify the name of the output csv if you'd like to use something other than default")
     parser.add_argument('--top_n', type=int, default=10,
                         help="Please provide n to define the # of top values to display in report.")
