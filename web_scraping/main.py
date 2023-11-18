@@ -1,3 +1,4 @@
+import csv
 import sys
 
 from selenium import webdriver
@@ -34,18 +35,20 @@ def safe_xpath_string_literal_2(string):
 # Initial Setup
 print('Starting..')
 driver = webdriver.Chrome()
-driver.get("https://www.gigabyte.com/Support/FAQ")
-WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "span.spanLink")))
+starting_url = "https://www.gigabyte.com/Support/FAQ"
+driver.get(starting_url)
+WebDriverWait(driver, 30).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "span.spanLink")))
 question_texts = [q.text for q in driver.find_elements(By.CSS_SELECTOR, "span.spanLink")]
-# for item in question_texts:
-#     print(f'item.text: {item.text}')
-#     print(f'item.accessible_name: {item.accessible_name}')
-# sys.exit(5)
-with open('FAQ_Scrapes.txt', 'w') as f:
+with open('FAQ_Scrapes.txt', 'w', encoding='utf-8') as f, open("FAQ_Scrapes.csv", 'w', newline='', encoding='utf-8') as csvf:
+    csvwriter = csv.writer(csvf)
+    csvwriter.writerow(['Number', 'Question', 'Answer'])
+    num = 1
+    f.write(f'Questions and Answers from {starting_url}\n\n')
+    f.flush()
     try:
         while True:
             print(f"The current URL is: {driver.current_url}")
-            WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "span.spanLink")))
+            WebDriverWait(driver, 30).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "span.spanLink")))
 
             question_texts = [q.text for q in driver.find_elements(By.CSS_SELECTOR, "span.spanLink")]
             # question_texts = [q.text for q in driver.find_elements(By.CSS_SELECTOR, "span.spanLink")]
@@ -53,7 +56,7 @@ with open('FAQ_Scrapes.txt', 'w') as f:
             for question_text in question_texts:
                 try:
                     xpath_expression = f"//span[contains(text(), {safe_xpath_string_literal(question_text)})]"
-                    question = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, xpath_expression)))
+                    question = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, xpath_expression)))
 
                     # Scroll into view
                     driver.execute_script("arguments[0].scrollIntoView(true);", question)
@@ -67,7 +70,7 @@ with open('FAQ_Scrapes.txt', 'w') as f:
                         print("Normal click failed, trying JavaScript click...")
                         driver.execute_script("arguments[0].click();", question)
 
-                    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "FaqSolution")))
+                    WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, "FaqSolution")))
                     answer = driver.find_element(By.CLASS_NAME, "FaqSolution").text
 
                     print(f"Question: {question_text}")
@@ -75,6 +78,10 @@ with open('FAQ_Scrapes.txt', 'w') as f:
 
                     f.write("Q - " + question_text + "\n")
                     f.write("A - " + answer + "\n\n")
+                    f.flush()
+                    csvwriter.writerow([num, question_text, answer])
+                    csvf.flush()
+                    num += 1
 
                     driver.back()
 
@@ -95,7 +102,7 @@ with open('FAQ_Scrapes.txt', 'w') as f:
                     continue
             try:
                 print("Looking for next button...")
-                next_button = WebDriverWait(driver, 10).until(
+                next_button = WebDriverWait(driver, 30).until(
                     EC.element_to_be_clickable((By.CLASS_NAME, "btn-group-next"))
                 )
 
@@ -114,19 +121,6 @@ with open('FAQ_Scrapes.txt', 'w') as f:
             except NoSuchElementException:
                 print("No 'Next' button found.")
                 # Handle the absence of the next button if necessary
-
-            # try:
-            #     print(f"Looking for next button...")
-            #     # next_button = driver.find_element(By.XPATH, "//a[contains(@href, 'javascript:pageNav(1)')]")
-            #     next_button = driver.find_element(By.CLASS_NAME, "btn-group-next")
-            #     if next_button:
-            #         next_button.click()
-            #         print(f'Clicked Button...')
-            #         time.sleep(5)
-            #     else:
-            #         break
-            # except NoSuchElementException:
-            #     break
 
     finally:
         driver.quit()
